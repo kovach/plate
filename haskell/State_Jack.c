@@ -3,8 +3,6 @@
 
 #include "Data_Jack.c"
 
-// typedef jack_default_audio_sample_t sample_t;
-
 // global state
 double freq;
 unsigned long sr;

@@ -1,24 +1,32 @@
 module Control where
 
+-- FFI
+import Foreign.C
 import qualified Data.Vector.Storable as SV
+
+-- WAV support
+import Data.WAVE
+
+-- opengl
 import Graphics.Rendering.OpenGL
 import Graphics.UI.GLUT
+
+-- io
 import Data.IORef
 import System.IO.Unsafe
 
-import Control.Concurrent
+
+-- stuff
 import Control.Monad
-
-
-import Foreign.C
 
 
 un = undefined
 
-dvFromList :: SV.Storable a => [a] -> SV.Vector a
-dvFromList list = SV.generate (length list) (list !!)
-type BufferId = Int
+--dvFromList :: SV.Storable a => [a] -> SV.Vector a
+--dvFromList list = SV.generate (length list) (list !!)
+--type BufferId = Int
 
+{- FFI declarations -}
 -- frequency control
 foreign import ccall "set_freq" c_set_freq :: CDouble -> IO ()
 setFreq :: Double -> IO ()
@@ -36,22 +44,25 @@ foreign import ccall "new_buffer" c_new_buffer :: CInt -> IO CInt
 newBuffer samples =
   c_new_buffer samples
 
-
-
 terminate_program = do
   c_jack_close
   leaveMainLoop
 
+{- Main -}
 main = do 
 
   -- init monad
   --glutref <- newIORef $ GlutState (Size 0 0) (0, 0) M.empty
   --gameref <- newIORef $ GameState A (45, 66) (80, 90)
 
-  -- init freq
+  -- initialize c stuff
   c_jack_init
 
-  -- video
+  -- read wav file
+  WAVE header samples <- getWAVEFile "mouthbreather.wav"
+
+
+  -- window
   (progname, _) <- getArgsAndInitialize
   initialDisplayMode $= [DoubleBuffered]
   createWindow "min"
@@ -61,6 +72,8 @@ main = do
   motionCallback $= Just (mousemove)
   mainLoop
 
+
+{- GLUT functions -}
 display = do
   clear [ColorBuffer]
   loadIdentity
