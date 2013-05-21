@@ -207,6 +207,7 @@ jack_init() // (int argc, char *argv[])
 
 	//jack_client_close (client);
 	//exit (0);
+  return jack_get_sample_rate (client);
 }
 
 void

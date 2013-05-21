@@ -1,2 +1,2 @@
-ghc --make -main-is Control -ljack -lpthread -lrt -lm Control.hs Jack.c && ./Control
+ghc -rtsopts --make -main-is Control -ljack -lpthread -lrt -lm Control.hs Jack.c && ./Control +RTS -M200M -h -RTS $@
 

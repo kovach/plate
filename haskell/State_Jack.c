@@ -24,7 +24,7 @@ void build_wave() {
     wave[i] = 2 * (double)i / wave_length;
   }
   for (i = wave_length/2; i < wave_length; i++) {
-    wave[i] = 1 - 2 * (double)i / wave_length;
+    wave[i] = 2 - 2 * (double)i / wave_length;
   }
 }
 
@@ -36,6 +36,12 @@ int new_buffer(int samples) {
   }
   num_buffers++;
   return num_buffers;
+}
+
+void store_wave(int len, float* w) {
+  free(wave);
+  wave = w;
+  wave_length = len;
 }
 
 int get_sr() {
@@ -70,4 +76,11 @@ void state_close() {
 void print_test()
 {
   fprintf(stderr, "HELLO\n");
+}
+
+void print_ptr (int length, int* array) {
+  int i;
+  for (i = 0; i < length; i++) {
+    printf("%i\n", array[i]);
+  }
 }
