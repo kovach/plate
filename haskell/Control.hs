@@ -24,6 +24,7 @@ import Waves
 
 -- stuff
 import Control.Monad
+import Data.List
 
 
 un = undefined
@@ -65,6 +66,21 @@ makeTriangle samples = map realToFrac $
   [2.0 * i / samples | i <- [0..samples/2]] ++
   [2.0 - 2.0 * i / samples | i <- [samples/2..samples]]
 
+repList :: Int -> [a] -> [a]
+repList c = concat . replicate c
+
+-- CHANGE lcm
+lcms = foldl' lcm 1
+makePartial lcm samples n = repList (lcm `div` n) $ makeTriangle (samples * fromIntegral n)
+
+makeTriangles :: [Int] -> Double -> [CFloat]
+makeTriangles ps@(p1:partials) samples = map realToFrac $
+  let m = lcms ps in
+  map (/ (fromIntegral (length ps) +0)) $
+  foldl' (zipWith (+)) (makePartial m samples p1) $ map
+    (makePartial m samples)
+    partials
+
 makeSweep start = concatMap makeTriangle [start..10*start]
 
 toFrames :: [CFloat] -> [[WAVESample]]
@@ -87,9 +103,12 @@ main = do
   let f_samples' = map (\x -> realToFrac . sampleToDouble $ x) samples' :: [CFloat]
 
   --let f_samples = makeTriangle (fromIntegral sr / 800.0)
-  let floats = makeSweep (fromIntegral sr / 600.0)
+  let floats' = makeSweep (fromIntegral sr / 600.0)
+      floats = makeTriangles [1,2,3] (fromIntegral sr / 800.0)
+      floats'' = makeTriangle (fromIntegral sr / 600.0)
       samples'' = toFrames floats
-  putWAVEFile "whale.wav" (WAVE header samples'')
+  -- to make WAVE output
+  --putWAVEFile "whale.wav" (WAVE header samples'')
 
 
   sptr <- newArray floats
